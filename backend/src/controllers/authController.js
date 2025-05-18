@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 exports.register = async (req, res) => {
-  console.log('POST /api/auth/register body:', req.body);
+  // console.log('POST /api/auth/register body:', req.body);
   const { email, password } = req.body;
   try {
     const userExists = await User.findOne({ email });
@@ -18,7 +18,7 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-  console.log('POST /api/auth/login body:', req.body);
+  // console.log('POST /api/auth/login body:', req.body);
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
