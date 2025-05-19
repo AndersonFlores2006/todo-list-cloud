@@ -1,54 +1,85 @@
-.app-layout {
+.dashboard-layout {
   display: flex;
   min-height: 100vh;
   background: linear-gradient(135deg, #4f8cff 0%, #22c55e 100%);
+  font-family: 'Segoe UI', Arial, sans-serif;
 }
 
-.sidebar {
-  width: 220px;
-  background: rgba(255,255,255,0.85);
-  box-shadow: 2px 0 16px rgba(0,0,0,0.06);
+.dashboard-sidebar {
+  width: 250px;
+  background: rgba(255,255,255,0.92);
+  box-shadow: 2px 0 16px rgba(0,0,0,0.08);
+  border-top-right-radius: 32px;
+  border-bottom-right-radius: 32px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 2rem 1rem 1rem 1rem;
-  border-top-right-radius: 24px;
-  border-bottom-right-radius: 24px;
-  margin-right: 2rem;
+  align-items: flex-start;
+  padding: 2.5rem 1.5rem 1.5rem 2rem;
+  min-height: 100vh;
+  position: sticky;
+  top: 0;
 }
-
-.sidebar-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
 .sidebar-logo {
-  font-size: 2.2rem;
-  margin-bottom: 0.3rem;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2.5rem;
+  color: #4f8cff;
+  letter-spacing: 1px;
 }
-
-.sidebar-content {
-  width: 100%;
+.sidebar-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem 0;
+}
+.sidebar-nav li {
+  padding: 0.7rem 0 0.7rem 0.5rem;
+  font-size: 1.1rem;
+  color: #222;
+  border-radius: 8px;
+  margin-bottom: 0.2rem;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.sidebar-nav li.active, .sidebar-nav li:hover {
+  background: #e0e7ff;
+  color: #4f8cff;
+}
+.sidebar-section {
   margin-bottom: 2rem;
+  width: 100%;
 }
-
-.sidebar-user {
+.sidebar-section-title {
+  font-size: 1rem;
   font-weight: 600;
-  margin-bottom: 1rem;
-  text-align: center;
+  margin-bottom: 0.5rem;
+  color: #4f8cff;
 }
-
-.sidebar-tasks {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
+.sidebar-lists {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.sidebar-lists li {
+  padding: 0.5rem 0 0.5rem 0.7rem;
+  border-radius: 6px;
+  margin-bottom: 0.2rem;
+  font-size: 1rem;
+  color: #222;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.sidebar-lists .list-active, .sidebar-lists li:hover {
+  background: #f0fdf4;
+  color: #22c55e;
+}
+.sidebar-user-email {
+  margin-top: auto;
+  margin-bottom: 1.2rem;
   font-size: 1rem;
   color: #4f8cff;
-  text-align: center;
+  font-weight: 600;
+  word-break: break-all;
 }
-
 .sidebar-logout {
   background: #e11d48;
   color: #fff;
@@ -57,112 +88,182 @@
   padding: 0.7rem 1.2rem;
   font-weight: 600;
   cursor: pointer;
-  margin-top: auto;
+  width: 100%;
   transition: background 0.2s;
+  font-size: 1rem;
 }
 .sidebar-logout:hover {
   background: #be123c;
 }
 
-.main-content {
+.dashboard-main {
   flex: 1;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 3rem 2rem 2rem 2rem;
+}
+.dashboard-header {
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
   align-items: flex-start;
 }
-
-.home-card {
+.dashboard-header h2 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin: 0 0 0.3rem 0;
+  color: #222;
+}
+.dashboard-date {
+  font-size: 1.1rem;
+  color: #fff;
+  font-weight: 500;
+  background: none;
+  padding: 0.2rem 0.7rem;
+  border-radius: 6px;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+.dashboard-tasks-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  padding: 2rem 2.5rem;
+  min-width: 350px;
+  max-width: 600px;
   width: 100%;
-  max-width: 540px;
-  min-width: 340px;
 }
-
-.todo-form {
+.dashboard-tasks-header {
   display: flex;
-  gap: 10px;
-  margin-bottom: 1.5rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.2rem;
 }
-
-.todo-input {
-  flex: 1;
-  padding: 0.7rem 1rem;
-  border-radius: 8px;
-  border: 1.5px solid #d1d5db;
-  font-size: 1rem;
-  outline: none;
-  transition: border 0.2s;
+.dashboard-tasks-header span {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #222;
 }
-.todo-input:focus {
-  border: 1.5px solid #4f8cff;
-}
-
-.todo-add-btn {
+.dashboard-add-btn {
   background: #4f8cff;
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 0.7rem 1.2rem;
+  padding: 0.6rem 1.2rem;
   font-weight: 600;
   cursor: pointer;
+  font-size: 1rem;
   transition: background 0.2s;
 }
-.todo-add-btn:hover {
+.dashboard-add-btn:hover {
   background: #2563eb;
 }
-
-.todo-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
+.dashboard-tasks-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
-
-.todo-note {
+.dashboard-tasks-list li {
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: #fef9c3;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  padding: 0.8rem 1rem;
+  gap: 10px;
+  padding: 0.7rem 0.5rem;
+  border-radius: 8px;
+  margin-bottom: 0.3rem;
+  background: #f8fafc;
   font-size: 1.08rem;
-  transition: background 0.2s, box-shadow 0.2s;
-  position: relative;
+  transition: background 0.18s;
 }
-.todo-note.completed {
+.dashboard-tasks-list li.completed {
   background: #d1fae5;
   text-decoration: line-through;
   color: #94a3b8;
 }
-.todo-note:hover {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
-}
-.todo-checkbox {
+.dashboard-tasks-list li input[type="checkbox"] {
   accent-color: #4f8cff;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
 }
-.todo-title {
-  flex: 1;
-  font-size: 1.08rem;
+
+.dashboard-right {
+  width: 320px;
+  min-width: 260px;
+  padding: 3rem 2rem 2rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
-.todo-delete-btn {
-  background: #e11d48;
-  color: #fff;
+.dashboard-calendar {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  padding: 1.5rem 1.2rem 1.2rem 1.2rem;
+  margin-bottom: 1.5rem;
+}
+.calendar-header {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #4f8cff;
+  margin-bottom: 0.7rem;
+}
+.calendar-component {
+  width: 100% !important;
+  border: none !important;
+  background: none !important;
+  font-family: inherit;
+}
+.calendar-selected-date {
+  margin-top: 0.7rem;
+  font-size: 1rem;
+  color: #222;
+  text-align: center;
+}
+.dashboard-filters {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  padding: 1.2rem 1.2rem 1.2rem 1.2rem;
+}
+.filters-header {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #4f8cff;
+  margin-bottom: 0.7rem;
+}
+.filter-btn {
+  background: #f3f4f6;
+  color: #222;
   border: none;
-  border-radius: 6px;
-  padding: 0.4rem 0.9rem;
+  border-radius: 8px;
+  padding: 0.6rem 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  font-size: 1.1rem;
-  transition: background 0.2s;
+  font-size: 1rem;
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+  transition: background 0.2s, color 0.2s;
 }
-.todo-delete-btn:hover {
-  background: #be123c;
+.filter-btn.active, .filter-btn:hover {
+  background: #4f8cff;
+  color: #fff;
 }
-.todo-error {
-  color: #e11d48;
-  text-align: center;
-  margin-bottom: 1rem;
+.dashboard-filters input[type="text"] {
+  width: 100%;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  border: 1.5px solid #d1d5db;
+  padding: 0.7rem 1rem;
+  font-size: 1rem;
+  box-sizing: border-box;
+  outline: none;
+  transition: border 0.2s;
+}
+.dashboard-filters input[type="text"]:focus {
+  border: 1.5px solid #4f8cff;
 }
 
 .modal-overlay {
@@ -239,4 +340,167 @@
 .todo-cancel-btn:hover {
   background: #e11d48;
   color: #fff;
+}
+
+body.dark-mode {
+  background: linear-gradient(135deg, #181c2a 0%, #232b43 100%) !important;
+}
+
+.dashboard-layout.dark-mode {
+  background: linear-gradient(135deg, #181c2a 0%, #232b43 100%);
+}
+
+.dashboard-sidebar.dark-mode {
+  background: rgba(24,28,42,0.97);
+  color: #e0e7ff;
+}
+
+.dashboard-main.dark-mode,
+.dashboard-tasks-card.dark-mode,
+.dashboard-calendar.dark-mode,
+.dashboard-filters.dark-mode {
+  background: #232b43;
+  color: #e0e7ff;
+}
+
+.dashboard-tasks-list.dark-mode li {
+  background: #232b43;
+  color: #e0e7ff;
+}
+
+.dashboard-tasks-list.dark-mode li.completed {
+  background: #2d3748;
+  color: #94a3b8;
+}
+
+.dashboard-tasks-header.dark-mode span,
+.dashboard-header.dark-mode h2,
+.dashboard-date.dark-mode {
+  color: #7dd3fc;
+}
+
+.filter-btn.dark-mode {
+  background: #232b43;
+  color: #e0e7ff;
+  border: 1.5px solid #4f8cff;
+}
+
+.filter-btn.dark-mode.active, .filter-btn.dark-mode:hover {
+  background: #4f8cff;
+  color: #fff;
+}
+
+.todo-edit-input.dark-mode {
+  background: #232b43;
+  color: #e0e7ff;
+  border: 1.5px solid #4f8cff;
+}
+
+.card.dark-mode {
+  background: #232b43;
+  color: #e0e7ff;
+}
+
+/* --- REACT CALENDAR DARK MODE --- */
+body.dark-mode .react-calendar {
+  background: #232b43 !important;
+  color: #e0e7ff !important;
+  border-radius: 18px;
+  border: none;
+}
+body.dark-mode .react-calendar__tile {
+  background: transparent !important;
+  color: #e0e7ff !important;
+  border-radius: 8px;
+}
+body.dark-mode .react-calendar__tile--active,
+body.dark-mode .react-calendar__tile--now {
+  background: #4f8cff !important;
+  color: #fff !important;
+}
+body.dark-mode .react-calendar__tile--hasActive {
+  background: #2563eb !important;
+  color: #fff !important;
+}
+body.dark-mode .react-calendar__month-view__days__day--weekend {
+  color: #f59e42 !important;
+}
+body.dark-mode .react-calendar__navigation button {
+  color: #7dd3fc !important;
+  background: transparent !important;
+}
+body.dark-mode .react-calendar__navigation button:enabled:hover {
+  background: #232b43 !important;
+}
+body.dark-mode .react-calendar__tile:disabled {
+  color: #555 !important;
+}
+body.dark-mode .react-calendar__month-view__weekdays {
+  color: #7dd3fc !important;
+}
+body.dark-mode .react-calendar__month-view__weekdays__weekday {
+  color: #7dd3fc !important;
+}
+
+.sidebar-section-title.dark-mode,
+.sidebar-logo.dark-mode,
+.sidebar-user-email.dark-mode {
+  color: #7dd3fc;
+}
+.sidebar-lists.dark-mode li {
+  color: #e0e7ff !important;
+  background: transparent;
+}
+.sidebar-lists.dark-mode .list-active,
+.sidebar-lists.dark-mode li:hover {
+  background: #232b43 !important;
+  color: #22c55e !important;
+}
+.sidebar-lists.dark-mode button {
+  background: #232b43 !important;
+  color: #7dd3fc !important;
+  border: 1px solid #4f8cff;
+  transition: background 0.2s, color 0.2s;
+}
+.sidebar-lists.dark-mode button:hover {
+  background: #4f8cff !important;
+  color: #fff !important;
+}
+
+.sidebar-nav.dark-mode ul {
+  color: #e0e7ff;
+}
+.sidebar-nav.dark-mode li {
+  color: #e0e7ff;
+}
+.sidebar-nav.dark-mode li.active, .sidebar-nav.dark-mode li:hover {
+  background: #4f8cff;
+  color: #fff;
+}
+
+/* Forzar color de texto en nombres de listas inactivas en modo oscuro */
+.sidebar-lists.dark-mode li span {
+  color: #e0e7ff !important;
+}
+.sidebar-lists.dark-mode .list-active span,
+.sidebar-lists.dark-mode li:hover span {
+  color: #22c55e !important;
+}
+
+/* Sidebar listas en modo oscuro: fondo y texto legibles */
+.sidebar-lists.dark-mode .list-active {
+  background: #232b43 !important;
+  color: #22c55e !important;
+}
+.sidebar-lists.dark-mode li {
+  background: transparent !important;
+  color: #e0e7ff !important;
+}
+.sidebar-lists.dark-mode li span {
+  color: #e0e7ff !important;
+  background: transparent !important;
+}
+.sidebar-lists.dark-mode .list-active span,
+.sidebar-lists.dark-mode li:hover span {
+  color: #22c55e !important;
 } 

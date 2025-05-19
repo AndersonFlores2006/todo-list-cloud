@@ -53,4 +53,28 @@ exports.googleLogin = async (req, res) => {
   } catch (error) {
     res.status(401).json({ message: 'Token de Google inválido' });
   }
+};
+
+exports.changePassword = async (req, res) => {
+  const userId = req.user.id;
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ message: 'Se requieren ambas contraseñas' });
+  }
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+    if (user.provider === 'google') {
+      return res.status(400).json({ message: 'No puedes cambiar la contraseña de una cuenta Google' });
+    }
+    const valid = await bcrypt.compare(currentPassword, user.password);
+    if (!valid) return res.status(400).json({ message: 'Contraseña actual incorrecta' });
+    const hashed = await bcrypt.hash(newPassword, 10);
+    user.password = hashed;
+    await user.save();
+    res.json({ message: 'Contraseña actualizada correctamente' });
+  } catch (err) {
+    console.error('Error al cambiar contraseña:', err);
+    res.status(500).json({ message: 'Error al cambiar contraseña' });
+  }
 }; 

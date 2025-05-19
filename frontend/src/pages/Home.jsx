@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTodos, createTodo, updateTodo, updateTodo as updateTask, deleteTodo, logout, getLists, createList, deleteList, updateList } from '../services/todoService';
+import { getTodos, createTodo, updateTodo, updateTodo as updateTask, deleteTodo, logout, getLists, createList, deleteList, updateList, changePassword } from '../services/todoService';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import '../styles/main.css';
 import './Home.css';
+import Swal from 'sweetalert2';
 
 function getUserEmail() {
   try {
@@ -113,12 +114,28 @@ function Home() {
   }, [todos]);
 
   // Simular cambio de contraseña
-  const handlePasswordChange = (e) => {
+  const handlePasswordChange = async (e) => {
     e.preventDefault();
-    alert('Contraseña actualizada (simulado)');
-    setCurrentPassword('');
-    setConfigPassword('');
-    setShowPasswordForm(false);
+    try {
+      await changePassword(currentPassword, configPassword);
+      Swal.fire({
+        icon: 'success',
+        title: '¡Contraseña actualizada!',
+        text: 'Tu contraseña fue cambiada correctamente.',
+        confirmButtonColor: '#4f8cff',
+      });
+      setCurrentPassword('');
+      setConfigPassword('');
+      setShowPasswordForm(false);
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Error al cambiar contraseña';
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: msg,
+        confirmButtonColor: '#e11d48',
+      });
+    }
   };
 
   // Cambiar tema (solo frontend)
@@ -126,6 +143,10 @@ function Home() {
     document.body.style.background = theme === 'dark'
       ? 'linear-gradient(135deg, #22223b 0%, #4f8cff 100%)'
       : 'linear-gradient(135deg, #4f8cff 0%, #22c55e 100%)';
+  }, [theme]);
+
+  useEffect(() => {
+    document.body.classList.toggle('dark-mode', theme === 'dark');
   }, [theme]);
 
   // Filtrar tareas por fecha seleccionada, lista activa, prioridad y tag
@@ -168,8 +189,9 @@ function Home() {
       setNewPriority('media');
       setNewTags('');
       fetchTodos();
+      Swal.fire({ icon: 'success', title: '¡Tarea creada!', showConfirmButton: false, timer: 1200 });
     } catch (err) {
-      setError('Error al agregar tarea');
+      Swal.fire({ icon: 'error', title: 'Error al agregar tarea', text: 'Intenta de nuevo', confirmButtonColor: '#e11d48' });
     }
   };
 
@@ -177,8 +199,9 @@ function Home() {
     try {
       await updateTodo(todo._id, { completed: !todo.completed, title: todo.title });
       fetchTodos();
+      Swal.fire({ icon: 'success', title: 'Tarea actualizada', showConfirmButton: false, timer: 1000 });
     } catch (err) {
-      setError('Error al actualizar tarea');
+      Swal.fire({ icon: 'error', title: 'Error al actualizar tarea', confirmButtonColor: '#e11d48' });
     }
   };
 
@@ -193,8 +216,9 @@ function Home() {
       setShowModal(false);
       setTodoToDelete(null);
       fetchTodos();
+      Swal.fire({ icon: 'success', title: 'Tarea eliminada', showConfirmButton: false, timer: 1000 });
     } catch (err) {
-      setError('Error al eliminar tarea');
+      Swal.fire({ icon: 'error', title: 'Error al eliminar tarea', confirmButtonColor: '#e11d48' });
     }
   };
 
@@ -203,40 +227,50 @@ function Home() {
     setTodoToDelete(null);
   };
 
-  const startEdit = (todo) => {
-    setEditId(todo._id);
-    setEditValue(todo.title);
-    setEditPriority(todo.priority || 'media');
-    setEditTags((todo.tags || []).join(', '));
-  };
-
-  const handleEditChange = (e) => {
-    setEditValue(e.target.value);
-  };
-
-  const saveEdit = async (todo) => {
-    if (!editValue.trim()) return;
-    try {
-      await updateTodo(todo._id, {
-        title: editValue,
-        completed: todo.completed,
-        list: todo.list._id,
-        priority: editPriority,
-        tags: editTags.split(',').map(t => t.trim()).filter(Boolean)
-      });
-      setEditId(null);
-      setEditValue('');
-      setEditPriority('media');
-      setEditTags('');
-      fetchTodos();
-    } catch (err) {
-      setError('Error al editar tarea');
+  const startEdit = async (todo) => {
+    const { value: formValues } = await Swal.fire({
+      title: 'Editar tarea',
+      html:
+        `<input id="swal-input1" class="swal2-input" placeholder="Título" value="${todo.title}" autofocus>
+        <select id="swal-input2" class="swal2-input">
+          <option value="alta" ${todo.priority === 'alta' ? 'selected' : ''}>Alta</option>
+          <option value="media" ${todo.priority === 'media' ? 'selected' : ''}>Media</option>
+          <option value="baja" ${todo.priority === 'baja' ? 'selected' : ''}>Baja</option>
+        </select>
+        <input id="swal-input3" class="swal2-input" placeholder="Tags (separados por coma)" value="${(todo.tags || []).join(', ')}">`,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Guardar',
+      cancelButtonText: 'Cancelar',
+      preConfirm: () => {
+        return [
+          document.getElementById('swal-input1').value,
+          document.getElementById('swal-input2').value,
+          document.getElementById('swal-input3').value
+        ];
+      },
+      customClass: { popup: 'swal2-todo-edit-modal' }
+    });
+    if (formValues) {
+      const [title, priority, tags] = formValues;
+      if (!title.trim()) {
+        Swal.fire({ icon: 'error', title: 'El título es requerido', confirmButtonColor: '#e11d48' });
+        return;
+      }
+      try {
+        await updateTodo(todo._id, {
+          title,
+          completed: todo.completed,
+          list: todo.list._id,
+          priority,
+          tags: tags.split(',').map(t => t.trim()).filter(Boolean)
+        });
+        fetchTodos();
+        Swal.fire({ icon: 'success', title: 'Tarea editada', showConfirmButton: false, timer: 1000 });
+      } catch (err) {
+        Swal.fire({ icon: 'error', title: 'Error al editar tarea', confirmButtonColor: '#e11d48' });
+      }
     }
-  };
-
-  const cancelEdit = () => {
-    setEditId(null);
-    setEditValue('');
   };
 
   const handleLogout = () => {
@@ -264,8 +298,9 @@ function Home() {
       setActiveList(newList._id);
       setNewListName('');
       setShowNewListInput(false);
+      Swal.fire({ icon: 'success', title: 'Lista creada', showConfirmButton: false, timer: 1000 });
     } catch (err) {
-      setError('Error al crear lista');
+      Swal.fire({ icon: 'error', title: 'Error al crear lista', confirmButtonColor: '#e11d48' });
     }
   };
 
@@ -279,7 +314,6 @@ function Home() {
       await deleteList(listToDelete);
       const updatedLists = lists.filter(l => l._id !== listToDelete);
       setLists(updatedLists);
-      // Si la lista eliminada era la activa, seleccionar otra
       if (activeList === listToDelete && updatedLists.length > 0) {
         setActiveList(updatedLists[0]._id);
       } else if (updatedLists.length === 0) {
@@ -288,8 +322,9 @@ function Home() {
       setShowDeleteListModal(false);
       setListToDelete(null);
       fetchTodos();
+      Swal.fire({ icon: 'success', title: 'Lista eliminada', showConfirmButton: false, timer: 1000 });
     } catch (err) {
-      setError('Error al eliminar lista');
+      Swal.fire({ icon: 'error', title: 'Error al eliminar lista', confirmButtonColor: '#e11d48' });
     }
   };
 
@@ -310,8 +345,9 @@ function Home() {
       setEditId(null);
       setEditValue('');
       fetchLists();
+      Swal.fire({ icon: 'success', title: 'Lista editada', showConfirmButton: false, timer: 1000 });
     } catch (err) {
-      setError('Error al editar lista');
+      Swal.fire({ icon: 'error', title: 'Error al editar lista', confirmButtonColor: '#e11d48' });
     }
   };
 
@@ -321,11 +357,11 @@ function Home() {
   };
 
   return (
-    <div className="dashboard-layout">
+    <div className={`dashboard-layout${theme === 'dark' ? ' dark-mode' : ''}`}>
       {/* Sidebar de navegación */}
-      <aside className="dashboard-sidebar">
-        <div className="sidebar-logo">📝 To-Do Cloud</div>
-        <nav className="sidebar-nav">
+      <aside className={`dashboard-sidebar${theme === 'dark' ? ' dark-mode' : ''}`}>
+        <div className={`sidebar-logo${theme === 'dark' ? ' dark-mode' : ''}`}>📝 To-Do Cloud</div>
+        <nav className={`sidebar-nav${theme === 'dark' ? ' dark-mode' : ''}`}>
           <ul>
             <li className={activeSection === 'Dashboard' ? 'active' : ''} onClick={() => setActiveSection('Dashboard')}>Dashboard</li>
             <li className={activeSection === 'Tareas' ? 'active' : ''} onClick={() => setActiveSection('Tareas')}>Tareas</li>
@@ -408,15 +444,15 @@ function Home() {
       </aside>
 
       {/* Panel principal */}
-      <main className="dashboard-main">
+      <main className={`dashboard-main${theme === 'dark' ? ' dark-mode' : ''}`}>
         {activeSection === 'Dashboard' && (
           <>
-            <div className="dashboard-header">
+            <div className={`dashboard-header${theme === 'dark' ? ' dark-mode' : ''}`}>
               <h2>¡Hola, {userEmail ? userEmail.split('@')[0] : 'usuario'}!</h2>
               <span className="dashboard-date">Hoy es {new Date().toLocaleDateString()}</span>
             </div>
-            <div className="dashboard-tasks-card">
-              <div className="dashboard-tasks-header">
+            <div className={`dashboard-tasks-card${theme === 'dark' ? ' dark-mode' : ''}`}>
+              <div className={`dashboard-tasks-header${theme === 'dark' ? ' dark-mode' : ''}`}>
                 <span>Tareas del {selectedDate.toLocaleDateString()}</span>
                 <button className="dashboard-add-btn" onClick={() => setEditId('new')}>+ Nueva tarea</button>
               </div>
@@ -447,7 +483,7 @@ function Home() {
                   <button className="todo-cancel-btn" type="button" onClick={cancelEdit}>Cancelar</button>
                 </form>
               )}
-              <ul className="dashboard-tasks-list">
+              <ul className={`dashboard-tasks-list${theme === 'dark' ? ' dark-mode' : ''}`}>
                 {filteredTodos.length === 0 && <li>No hay tareas para esta fecha.</li>}
                 {filteredTodos.map(todo => (
                   <li key={todo._id} className={todo.completed ? 'completed' : ''}>
@@ -576,7 +612,7 @@ function Home() {
         )}
         {activeSection === 'Calendario' && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', minHeight: 500, justifyContent: 'center' }}>
-            <div style={{ background: '#fff', borderRadius: 18, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', padding: '2.5rem 2rem', marginBottom: 32, minWidth: 400, maxWidth: 600, width: '100%' }}>
+            <div className={`dashboard-calendar${theme === 'dark' ? ' dark-mode' : ''}`} style={{ background: theme === 'dark' ? '#232b43' : '#fff', borderRadius: 18, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', padding: '2.5rem 2rem', marginBottom: 32, minWidth: 400, maxWidth: 600, width: '100%' }}>
               <h2 style={{ textAlign: 'center', color: '#4f8cff', marginBottom: 24, fontSize: '2.2rem' }}>Calendario</h2>
               <Calendar
                 onChange={setSelectedDate}
@@ -593,7 +629,7 @@ function Home() {
                   ) : null
                 }
               />
-              <div className="calendar-selected-date" style={{ marginTop: 18, fontWeight: 600, color: '#222', textAlign: 'center', fontSize: '1.1rem' }}>
+              <div className="calendar-selected-date" style={{ marginTop: 18, fontWeight: 600, color: theme === 'dark' ? '#e0e7ff' : '#222', textAlign: 'center', fontSize: '1.1rem' }}>
                 Seleccionado: {selectedDate.toLocaleDateString()}
               </div>
               <div style={{ marginTop: 32 }}>
@@ -615,9 +651,9 @@ function Home() {
                     if (filterTag && (!todo.tags || !todo.tags.some(tag => tag.toLowerCase().includes(filterTag.toLowerCase())))) return false;
                     return true;
                   }).map(todo => (
-                    <li key={todo._id} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, background: todo.completed ? '#d1fae5' : '#f8fafc', borderRadius: 8, padding: '0.5rem 0.7rem' }}>
+                    <li key={todo._id} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, background: todo.completed ? '#2d3748' : (theme === 'dark' ? '#232b43' : '#f8fafc'), borderRadius: 8, padding: '0.5rem 0.7rem', color: theme === 'dark' ? '#e0e7ff' : '#222' }}>
                       <input type="checkbox" checked={todo.completed} onChange={() => handleToggle(todo)} />
-                      <span style={{ flex: 1, textDecoration: todo.completed ? 'line-through' : 'none', color: todo.completed ? '#94a3b8' : '#222' }}>{todo.title}</span>
+                      <span style={{ flex: 1, textDecoration: todo.completed ? 'line-through' : 'none', color: todo.completed ? '#94a3b8' : (theme === 'dark' ? '#e0e7ff' : '#222') }}>{todo.title}</span>
                       <span style={{ fontSize: 12, color: todo.priority === 'alta' ? '#e11d48' : todo.priority === 'media' ? '#f59e42' : '#22c55e', fontWeight: 600 }}>{todo.priority}</span>
                       {todo.tags && todo.tags.length > 0 && (
                         <span style={{ fontSize: 12, color: '#4f8cff' }}>{todo.tags.map((tag, i) => <span key={i} style={{ marginRight: 4 }}>#{tag}</span>)}</span>
@@ -706,8 +742,8 @@ function Home() {
       </main>
 
       {/* Panel derecho: calendario y filtros */}
-      <aside className="dashboard-right">
-        <div className="dashboard-filters">
+      <aside className={`dashboard-right`}>
+        <div className={`dashboard-filters${theme === 'dark' ? ' dark-mode' : ''}`}>
           <div className="filters-header">Filtros</div>
           <div style={{ marginBottom: 8 }}>
             <button

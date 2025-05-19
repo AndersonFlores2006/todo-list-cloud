@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { login } from '../services/todoService';
 import './Auth.css';
 import { GoogleLogin } from '@react-oauth/google';
+import Swal from 'sweetalert2';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -24,7 +25,7 @@ function Login() {
       await login(email, password);
       navigate('/home');
     } catch (err) {
-      setError('Credenciales incorrectas');
+      Swal.fire({ icon: 'error', title: 'Credenciales incorrectas', text: 'Verifica tu correo y contraseña', confirmButtonColor: '#e11d48' });
     }
   };
 
