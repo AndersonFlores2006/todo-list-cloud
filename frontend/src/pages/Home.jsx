@@ -356,6 +356,13 @@ function Home() {
     setEditValue('');
   };
 
+  const cancelEdit = () => {
+    setEditId(null);
+    setNewTodo('');
+    setNewPriority('media');
+    setNewTags('');
+  };
+
   return (
     <div className={`dashboard-layout${theme === 'dark' ? ' dark-mode' : ''}`}>
       {/* Sidebar de navegación */}
