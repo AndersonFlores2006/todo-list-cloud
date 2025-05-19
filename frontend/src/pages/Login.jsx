@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../services/todoService';
 import './Auth.css';
+import { GoogleLogin } from '@react-oauth/google';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -46,6 +47,29 @@ function Login() {
           required
         />
         <button type="submit">Entrar</button>
+        <div style={{ margin: '1rem 0', textAlign: 'center' }}>
+          <GoogleLogin
+            onSuccess={async (credentialResponse) => {
+              try {
+                const res = await fetch('http://localhost:5000/api/auth/google', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ token: credentialResponse.credential })
+                });
+                const data = await res.json();
+                if (data.token) {
+                  localStorage.setItem('token', data.token);
+                  navigate('/home');
+                } else {
+                  setError(data.message || 'Error autenticando con Google');
+                }
+              } catch (err) {
+                setError('Error autenticando con Google');
+              }
+            }}
+            onError={() => setError('Error con Google Login')}
+          />
+        </div>
         {error && <p className="auth-error">{error}</p>}
         <div className="auth-switch">
           <span>¿No tienes cuenta?</span>

@@ -13,4 +13,18 @@ frontend/build/
 frontend/node_modules/
 
 # Ignorar archivos sensibles y dependencias globalmente
-**/.env 
+**/.env
+
+# Ignorar variables de entorno
+.env
+backend/.env
+frontend/.env
+
+# Ignorar archivos de credenciales de Google
+frontend/client_secret_*.json
+
+# Archivos de log
+*.log
+
+# Otros archivos temporales
+.DS_Store 
