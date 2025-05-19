@@ -69,9 +69,17 @@ exports.changePassword = async (req, res) => {
     }
     const valid = await bcrypt.compare(currentPassword, user.password);
     if (!valid) return res.status(400).json({ message: 'Contraseña actual incorrecta' });
+
+    // LOG antes de cambiar
+    console.log('ANTES DE CAMBIAR:', user);
+
     const hashed = await bcrypt.hash(newPassword, 10);
     user.password = hashed;
     await user.save();
+
+    // LOG después de cambiar
+    console.log('DESPUÉS DE CAMBIAR:', user);
+
     res.json({ message: 'Contraseña actualizada correctamente' });
   } catch (err) {
     console.error('Error al cambiar contraseña:', err);
