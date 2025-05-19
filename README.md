@@ -4,9 +4,19 @@ Aplicación web moderna de lista de tareas con frontend en **React** y backend e
 
 ---
 
-## 🚀 Demo
+## 🚀 Demo Rápida
 
-¡Clona el repo y ejecútalo localmente! (ver instrucciones abajo)
+1. Clona el repo y sigue los pasos de instalación abajo.
+2. Accede a [http://localhost:3000](http://localhost:3000) tras levantar backend y frontend.
+
+---
+
+## 📋 Requisitos Previos
+
+- Node.js >= 16.x
+- npm >= 8.x
+- MongoDB Atlas (o local)
+- Cuenta de Google Cloud para OAuth (opcional, pero recomendado)
 
 ---
 
@@ -106,6 +116,55 @@ La app permite iniciar sesión con Google usando OAuth 2.0.
 - Diseño responsivo y moderno (React + CSS)
 - Sidebar con usuario y contador de tareas
 - Confirmación al eliminar y cerrar sesión
+- Soporte para múltiples listas de tareas
+- Filtros por prioridad y tags
+- Calendario integrado
+- Cambio de tema (claro/oscuro)
+
+---
+
+## ⚠️ Errores Comunes y Soluciones
+
+### 1. No se puede agregar tarea si no existe una lista
+**Síntoma:** Al intentar agregar una tarea sin haber creado una lista, la app no responde o muestra error.
+
+**Solución:**
+- Desde la versión X.X.X, la app crea automáticamente una lista predeterminada "Personal" si no existen listas al iniciar.
+- Si tienes una versión anterior, crea manualmente una lista antes de agregar tareas.
+
+### 2. Error: `cancelEdit is not defined`
+**Síntoma:** Al presionar "Cancelar" en el formulario de nueva tarea, aparece un error en consola.
+
+**Solución:**
+- Se agregó la función `cancelEdit` para limpiar el formulario y cerrar la edición correctamente.
+- Si ves este error, actualiza tu código a la última versión.
+
+### 3. Problemas de conexión con MongoDB
+**Síntoma:** El backend no arranca o muestra error de conexión.
+
+**Solución:**
+- Verifica que tu cadena `MONGO_URI` en `.env` sea correcta.
+- Si usas MongoDB Atlas, asegúrate de permitir conexiones desde tu IP.
+
+### 4. Google OAuth no funciona
+**Síntoma:** El login con Google no redirige o muestra error.
+
+**Solución:**
+- Verifica que el `GOOGLE_CLIENT_ID` esté bien configurado en el backend.
+- Asegúrate de que los orígenes y redirecciones autorizados en Google Cloud incluyan tu URL local y de producción.
+
+---
+
+## 🧰 Comandos Útiles
+
+### Backend
+- `npm run dev` — Levanta el backend en modo desarrollo
+- `npm start` — Levanta el backend en modo producción
+- `npm test` — Ejecuta los tests (si existen)
+
+### Frontend
+- `npm start` — Levanta el frontend en modo desarrollo
+- `npm run build` — Genera la versión de producción
 
 ---
 
@@ -113,6 +172,19 @@ La app permite iniciar sesión con Google usando OAuth 2.0.
 - Backend listo para Render (`render.yaml`)
 - Frontend puede desplegarse en Vercel, Netlify, etc.
 - **Recuerda agregar la URL de producción en Google Cloud Console para Google OAuth.**
+
+---
+
+## ❓ Preguntas Frecuentes (FAQ)
+
+**¿Puedo usar MongoDB local?**
+Sí, solo cambia la variable `MONGO_URI` en tu `.env` por la de tu instancia local.
+
+**¿Puedo cambiar el nombre de la lista predeterminada?**
+Sí, edítala desde la interfaz después de creada.
+
+**¿Cómo reporto un bug?**
+Abre un issue en GitHub o contacta al autor.
 
 ---
 
