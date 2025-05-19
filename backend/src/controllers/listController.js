@@ -22,4 +22,19 @@ exports.deleteList = async (req, res) => {
   // Eliminar todas las tareas asociadas a esta lista
   await Todo.deleteMany({ list: id, user: req.user.id });
   res.json({ message: 'Lista y tareas asociadas eliminadas' });
+};
+
+exports.updateList = async (req, res) => {
+  const { id } = req.params;
+  const { name } = req.body;
+  if (!name) return res.status(400).json({ message: 'El nombre es requerido' });
+  const exists = await List.findOne({ user: req.user.id, name, _id: { $ne: id } });
+  if (exists) return res.status(400).json({ message: 'Ya existe una lista con ese nombre' });
+  const list = await List.findOneAndUpdate(
+    { _id: id, user: req.user.id },
+    { name },
+    { new: true }
+  );
+  if (!list) return res.status(404).json({ message: 'Lista no encontrada' });
+  res.json(list);
 }; 

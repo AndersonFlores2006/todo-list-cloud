@@ -13,8 +13,8 @@ export const getTodos = async () => {
   return res.data;
 };
 
-export const createTodo = async (title) => {
-  const res = await axios.post(API_URL, { title }, { headers: getAuthHeader() });
+export const createTodo = async (title, list, priority = 'media', tags = []) => {
+  const res = await axios.post(API_URL, { title, list, priority, tags }, { headers: getAuthHeader() });
   return res.data;
 };
 
@@ -46,4 +46,27 @@ export const login = async (email, password) => {
 
 export const logout = () => {
   localStorage.removeItem('token');
+};
+
+// Servicios de listas
+const LISTS_URL = '/api/lists/';
+
+export const getLists = async () => {
+  const res = await axios.get(LISTS_URL, { headers: getAuthHeader() });
+  return res.data;
+};
+
+export const createList = async (name) => {
+  const res = await axios.post(LISTS_URL, { name }, { headers: getAuthHeader() });
+  return res.data;
+};
+
+export const deleteList = async (id) => {
+  const res = await axios.delete(`${LISTS_URL}${id}`, { headers: getAuthHeader() });
+  return res.data;
+};
+
+export const updateList = async (id, name) => {
+  const res = await axios.put(`/api/lists/${id}`, { name }, { headers: getAuthHeader() });
+  return res.data;
 }; 
