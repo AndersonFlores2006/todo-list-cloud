@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = '/api/todos/';
+const API_BASE = process.env.REACT_APP_API_URL || '';
+const API_URL = `${API_BASE}/api/todos/`;
 
 // Helper para obtener el token guardado
 function getAuthHeader() {
@@ -29,7 +30,7 @@ export const deleteTodo = async (id) => {
 };
 
 // Servicios de autenticación
-const AUTH_URL = '/api/auth/';
+const AUTH_URL = `${API_BASE}/api/auth/`;
 
 export const register = async (email, password) => {
   const res = await axios.post(`${AUTH_URL}register`, { email, password });
@@ -48,8 +49,13 @@ export const logout = () => {
   localStorage.removeItem('token');
 };
 
+export const changePassword = async (currentPassword, newPassword) => {
+  const res = await axios.post('/api/auth/change-password', { currentPassword, newPassword }, { headers: getAuthHeader() });
+  return res.data;
+};
+
 // Servicios de listas
-const LISTS_URL = '/api/lists/';
+const LISTS_URL = `${API_BASE}/api/lists/`;
 
 export const getLists = async () => {
   const res = await axios.get(LISTS_URL, { headers: getAuthHeader() });
