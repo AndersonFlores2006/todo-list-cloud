@@ -52,7 +52,8 @@ function Login() {
           <GoogleLogin
             onSuccess={async (credentialResponse) => {
               try {
-                const res = await fetch('http://localhost:5000/api/auth/google', {
+                const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+                const res = await fetch(`${apiUrl}/api/auth/google`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ token: credentialResponse.credential })
