@@ -10,7 +10,8 @@
     "react-dom": "^18.0.0",
     "react-router-dom": "^6.0.0",
     "react-scripts": "^5.0.0",
-    "serve": "^14.2.4"
+    "serve": "^14.2.4",
+    "sweetalert2": "^11.21.2"
   },
   "scripts": {
     "start": "react-scripts start",
