@@ -73,8 +73,15 @@ function Home() {
 
   const fetchLists = async () => {
     const data = await getLists();
-    setLists(data);
-    if (!activeList && data.length > 0) setActiveList(data[0]._id);
+    if (data.length === 0) {
+      // Si no hay listas, crea una predeterminada
+      const defaultList = await createList('Personal');
+      setLists([defaultList]);
+      setActiveList(defaultList._id);
+    } else {
+      setLists(data);
+      if (!activeList && data.length > 0) setActiveList(data[0]._id);
+    }
   };
 
   const fetchTodos = async () => {
