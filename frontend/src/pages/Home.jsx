@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTodos, createTodo, updateTodo, updateTodo as updateTask, deleteTodo, logout, getLists, createList, deleteList, updateList, changePassword } from '../services/todoService';
+import { getTodos, createTodo, updateTodo, deleteTodo, logout, getLists, createList, deleteList, updateList, changePassword } from '../services/todoService';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import '../styles/main.css';
@@ -234,50 +234,11 @@ function Home() {
     setTodoToDelete(null);
   };
 
-  const startEdit = async (todo) => {
-    const { value: formValues } = await Swal.fire({
-      title: 'Editar tarea',
-      html:
-        `<input id="swal-input1" class="swal2-input" placeholder="Título" value="${todo.title}" autofocus>
-        <select id="swal-input2" class="swal2-input">
-          <option value="alta" ${todo.priority === 'alta' ? 'selected' : ''}>Alta</option>
-          <option value="media" ${todo.priority === 'media' ? 'selected' : ''}>Media</option>
-          <option value="baja" ${todo.priority === 'baja' ? 'selected' : ''}>Baja</option>
-        </select>
-        <input id="swal-input3" class="swal2-input" placeholder="Tags (separados por coma)" value="${(todo.tags || []).join(', ')}">`,
-      focusConfirm: false,
-      showCancelButton: true,
-      confirmButtonText: 'Guardar',
-      cancelButtonText: 'Cancelar',
-      preConfirm: () => {
-        return [
-          document.getElementById('swal-input1').value,
-          document.getElementById('swal-input2').value,
-          document.getElementById('swal-input3').value
-        ];
-      },
-      customClass: { popup: 'swal2-todo-edit-modal' }
-    });
-    if (formValues) {
-      const [title, priority, tags] = formValues;
-      if (!title.trim()) {
-        Swal.fire({ icon: 'error', title: 'El título es requerido', confirmButtonColor: '#e11d48' });
-        return;
-      }
-      try {
-        await updateTodo(todo._id, {
-          title,
-          completed: todo.completed,
-          list: todo.list._id,
-          priority,
-          tags: tags.split(',').map(t => t.trim()).filter(Boolean)
-        });
-        fetchTodos();
-        Swal.fire({ icon: 'success', title: 'Tarea editada', showConfirmButton: false, timer: 1000 });
-      } catch (err) {
-        Swal.fire({ icon: 'error', title: 'Error al editar tarea', confirmButtonColor: '#e11d48' });
-      }
-    }
+  const startEdit = (todo) => {
+    setEditId(todo._id);
+    setEditValue(todo.title);
+    setEditPriority(todo.priority || 'media');
+    setEditTags((todo.tags || []).join(', '));
   };
 
   const handleLogout = () => {
@@ -363,8 +324,40 @@ function Home() {
     setEditValue('');
   };
 
+  const handleEditChange = (e) => {
+    setEditValue(e.target.value);
+  };
+
+  const saveEdit = async (todo) => {
+    if (!editValue.trim()) {
+      Swal.fire({ icon: 'error', title: 'El título es requerido', confirmButtonColor: '#e11d48' });
+      return;
+    }
+    const updatedTaskData = {
+      title: editValue,
+      completed: todo.completed,
+      list: todo.list._id,
+      priority: editPriority,
+      tags: editTags.split(',').map(t => t.trim()).filter(Boolean),
+    };
+    try {
+      await updateTodo(todo._id, updatedTaskData);
+      fetchTodos();
+      setEditId(null);
+      Swal.fire({ icon: 'success', title: 'Tarea editada', showConfirmButton: false, timer: 1000 });
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error al editar tarea', confirmButtonColor: '#e11d48' });
+    }
+  };
+
   const cancelEdit = () => {
     setEditId(null);
+    // Reset edit-specific states as well, though they get overwritten by startEdit.
+    // Primarily for cleanliness if cancelEdit is used more broadly.
+    setEditValue('');
+    setEditPriority('media');
+    setEditTags('');
+    // Keep newTodo states for the new task form
     setNewTodo('');
     setNewPriority('media');
     setNewTags('');
@@ -512,7 +505,7 @@ function Home() {
                           className="todo-edit-input"
                           type="text"
                           value={editValue}
-                          onChange={handleEditChange}
+                          onChange={handleEditChange} // Ensure this is correct
                           autoFocus
                         />
                         <select value={editPriority} onChange={e => setEditPriority(e.target.value)} className="todo-edit-input">
@@ -527,7 +520,7 @@ function Home() {
                           value={editTags}
                           onChange={e => setEditTags(e.target.value)}
                         />
-                        <button className="todo-save-btn" onClick={() => saveEdit(todo)}>Guardar</button>
+                        <button className="todo-save-btn" onClick={() => saveEdit(todo)}>Guardar</button> 
                         <button className="todo-cancel-btn" onClick={cancelEdit}>Cancelar</button>
                       </>
                     ) : (
