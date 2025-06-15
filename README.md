@@ -35,7 +35,9 @@ backend/
 ├── .env                    # Variables de entorno (NO subir)
 ├── .gitignore
 ├── package.json
-└── render.yaml             # Configuración para Render
+├── render.yaml             # Configuración para Render (opcional)
+├── Dockerfile              # Dockerfile para la imagen del backend
+└── .dockerignore           # Archivos a ignorar en la imagen Docker del backend
 
 frontend/
 ├── public/                 # Archivos estáticos
@@ -46,12 +48,21 @@ frontend/
 │   ├── styles/             # Estilos globales
 │   └── App.jsx, index.js
 ├── package.json
-└── .gitignore
+├── .gitignore
+├── Dockerfile              # Dockerfile para la imagen del frontend
+└── .dockerignore           # Archivos a ignorar en la imagen Docker del frontend
+
+docker-compose.yml          # Para ejecutar ambos servicios localmente con Docker Compose
+.github/                    # Carpeta de configuración de GitHub Actions
+└── workflows/
+    └── deploy-to-do-list.yml # Workflow de CI/CD para Google Cloud Run
 ```
 
 ---
 
 ## 🛠️ Instalación y Ejecución Local
+
+Puedes ejecutar la aplicación localmente usando Docker Compose. Asegúrate de tener Docker instalado.
 
 ### 1. Clona el repositorio
 ```bash
@@ -59,12 +70,10 @@ git clone https://github.com/AndersonFlores2006/todo-list-cloud.git
 cd todo-list-cloud
 ```
 
-### 2. Configura el backend
+### 2. Configura las variables de entorno para el backend
+Crea un archivo `.env` en la carpeta `backend/` basado en `.env.example`:
 ```bash
-cd backend
-cp .env.example .env   # Crea tu archivo .env (ver ejemplo abajo)
-npm install
-npm run dev            # o npm start
+cp backend/.env.example backend/.env
 ```
 
 #### Ejemplo de `.env` para backend:
@@ -75,14 +84,22 @@ PORT=5000
 GOOGLE_CLIENT_ID=tu_client_id_de_google
 ```
 
-### 3. Configura el frontend
+### 3. Ejecuta la aplicación con Docker Compose
+Desde la raíz del proyecto, ejecuta:
 ```bash
-cd ../frontend
-npm install
-npm start
+docker-compose build   # Construye las imágenes Docker (solo la primera vez o si cambian los Dockerfiles)
+docker-compose up      # Levanta el backend y el frontend
 ```
-
 La app estará disponible en [http://localhost:3000](http://localhost:3000)
+
+Para ejecutar en segundo plano:
+```bash
+docker-compose up -d
+```
+Para detener los servicios:
+```bash
+docker-compose down
+```
 
 ---
 
@@ -168,10 +185,30 @@ La app permite iniciar sesión con Google usando OAuth 2.0.
 
 ---
 
-## ☁️ Despliegue
-- Backend listo para Render (`render.yaml`)
-- Frontend puede desplegarse en Vercel, Netlify, etc.
-- **Recuerda agregar la URL de producción en Google Cloud Console para Google OAuth.**
+## ☁️ Despliegue en Google Cloud Run con GitHub Actions
+
+La aplicación está configurada para un despliegue continuo en Google Cloud Run utilizando GitHub Actions. El workflow `deploy-to-do-list.yml` se encarga de construir y desplegar tanto el backend como el frontend de forma independiente.
+
+### Requisitos para el despliegue automático:
+
+1.  **Proyecto de Google Cloud**: Asegúrate de tener un proyecto de Google Cloud configurado.
+2.  **Cuenta de Servicio (Service Account)**: Crea una cuenta de servicio con los permisos necesarios para Cloud Build y Cloud Run.
+3.  **Credenciales de GitHub Secrets**: Configura los siguientes secretos en tu repositorio de GitHub (`Settings > Secrets and variables > Actions`):
+    *   `GCP_SA_KEY`: El contenido JSON de la clave de tu cuenta de servicio.
+    *   `GCP_PROJECT_ID`: El ID de tu proyecto de Google Cloud.
+    *   `BACKEND_ENV`: El contenido de tu archivo `.env` del backend (ej., `MONGO_URI`, `JWT_SECRET`).
+    *   `FRONTEND_ENV`: (Opcional) Cualquier otra variable de entorno adicional para tu frontend. El workflow configurará automáticamente `REACT_APP_API_URL`.
+
+### Proceso de Despliegue:
+
+Cada vez que hagas un `push` a la rama `main`, el workflow realizará los siguientes pasos:
+1.  Construirá y desplegará el servicio del **backend** en Google Cloud Run.
+2.  Obtendrá la URL pública del backend desplegado.
+3.  Construirá y desplegará el servicio del **frontend** en Google Cloud Run, inyectando la URL del backend como `REACT_APP_API_URL` en el entorno de build del frontend.
+
+Puedes encontrar el estado de tus despliegues en la sección de "Actions" de tu repositorio de GitHub.
+
+**Nota:** Asegúrate de que las URLs de producción de Cloud Run para el frontend y el backend estén añadidas a los "Orígenes de JavaScript autorizados" y "URIs de redirección autorizados" en la configuración de OAuth de tu proyecto de Google Cloud Console si usas Google OAuth.
 
 ---
 
