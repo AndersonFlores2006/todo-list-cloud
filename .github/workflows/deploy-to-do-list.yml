@@ -33,12 +33,16 @@ jobs:
 
       - name: Deploy backend to Cloud Run
         run: |
+          # Convert BACKEND_ENV secret to a comma-separated string for --set-env-vars
+          ENV_VARS=$(echo "${{ secrets.BACKEND_ENV }}" | awk NF | sed 's/\r//g' | paste -sd, -)
+          
           gcloud run deploy todo-backend \
             --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/todo-backend \
             --platform managed \
             --region us-central1 \
             --allow-unauthenticated \
-            --port 5000
+            --port 5000 \
+            --set-env-vars $ENV_VARS
 
       - name: Get backend Cloud Run URL
         id: get-backend-url
