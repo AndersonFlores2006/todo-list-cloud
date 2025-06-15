@@ -33,8 +33,8 @@ jobs:
 
       - name: Deploy backend to Cloud Run
         run: |
-          # Convert BACKEND_ENV secret to a comma-separated string for --set-env-vars
-          ENV_VARS=$(echo "${{ secrets.BACKEND_ENV }}" | awk NF | sed 's/\r//g' | paste -sd, -)
+          # Convert BACKEND_ENV secret to a comma-separated string for --set-env-vars, excluding PORT
+          ENV_VARS=$(echo "${{ secrets.BACKEND_ENV }}" | grep -v '^PORT=' | awk NF | sed 's/\r//g' | paste -sd, -)
           
           gcloud run deploy todo-backend \
             --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/todo-backend \
