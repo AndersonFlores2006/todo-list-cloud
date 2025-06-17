@@ -1,4 +1,4 @@
 # Ignorar archivos sensibles y dependencias
 .env
 node_modules/
-.DS_Store 
+.DS_Store backend/client_secret_*.json
