@@ -10,7 +10,7 @@ dotenv.config();
 const app = express();
 
 const allowedOrigins = [
-  'https://todo-frontend-278833805240.us-central1.run.app', // Cambia esto por tu dominio real de producción
+  'https://todo-frontend-278833805240.us-central1.run.app', // Tu frontend en producción
   'http://localhost:3000'        // Opcional: para pruebas locales
 ];
 
