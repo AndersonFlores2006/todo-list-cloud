@@ -13,7 +13,22 @@ const connectDB = async () => {
     await mongoose.connect(process.env.MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      ssl: true,
+      retryWrites: true,
+      w: 'majority',
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
     });
+
+    mongoose.connection.on('error', (err) => {
+      console.error('Error de conexión a MongoDB:', err);
+    });
+
+    mongoose.connection.on('disconnected', () => {
+      console.warn('MongoDB desconectado. Intentando reconectar...');
+    });
+
     // console.log('MongoDB conectado');
   } catch (error) {
     console.error('Error conectando a MongoDB:', error.message);

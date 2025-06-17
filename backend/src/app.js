@@ -9,7 +9,15 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = [
+  'https://todo-frontend-278833805240.us-central1.run.app', // Cambia esto por tu dominio real de producción
+  'http://localhost:3000'        // Opcional: para pruebas locales
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
